@@ -4,10 +4,10 @@ import os
 from pathlib import Path
 import zipfile
 from io import BytesIO
-from dotenv import load_dotenv  # ← ADD THIS IMPORT
+from dotenv import load_dotenv
 
 # Load environment variables from .env file FIRST
-load_dotenv()  # ← ADD THIS LINE
+load_dotenv()
 
 # Add agent to path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -16,7 +16,6 @@ from agent.graph import agent
 from agent.tools import PROJECT_ROOT, init_project_root
 
 # Get API key from environment (loaded from .env file)
-# No hardcoded key needed - it reads from .env automatically
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 if GROQ_API_KEY:
@@ -25,11 +24,29 @@ else:
     st.error("⚠️ GROQ_API_KEY not found! Please add it to your .env file")
     st.stop()
 
+# UPDATED: Page config with hidden menu items
 st.set_page_config(
     page_title="AI Coding Assistant",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
 )
+
+# ADD THIS: Hide GitHub button and Streamlit branding
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stDeployButton {display:none;}
+    div[data-testid="stToolbar"] {display:none;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Initialize project root
 init_project_root()
@@ -42,12 +59,9 @@ st.markdown("**AI-powered code generator** - Transform your ideas into working c
 with st.sidebar:
     st.markdown("### 💡 Example Prompts")
     st.markdown("""
-    - Create a to-do list app with HTML, CSS, JS
-    - Build a calculator with Python
-    - Make a simple blog website
-    - Create a weather dashboard
-    - Build a landing page for a coffee shop
-    - Create a digital clock with JavaScript
+    - Create a to-do list application using html, css, and javascript.
+    - Create a simple calculator web application.
+    - Create a digital clock with JavaScript.
     """)
 
     st.markdown("---")
@@ -56,8 +70,7 @@ with st.sidebar:
     1. Describe your project
     2. AI generates complete code
     3. Download your project
-    4. Unzip your project before running
-    5. Run it locally!
+    4. Run it locally!
     """)
 
 # Main content
@@ -83,7 +96,7 @@ if st.button("🚀 Generate Project", type="primary", use_container_width=True):
         init_project_root()
 
         # Progress tracking
-        progress_bar = st.progress(0, text="🤖 Coder Buddy is working...")
+        progress_bar = st.progress(0, text="🤖 AI is working...")
         status = st.empty()
 
         try:
@@ -92,7 +105,7 @@ if st.button("🚀 Generate Project", type="primary", use_container_width=True):
             progress_bar.progress(25)
 
             # Architecture phase
-            status.info("🏗️ Designing architecture...")
+            status.info("🗺️ Designing architecture...")
             progress_bar.progress(50)
 
             # Coding phase
@@ -219,18 +232,15 @@ if st.button("🚀 Generate Project", type="primary", use_container_width=True):
                         use_container_width=True
                     )
 
-                    # ADDED THIS
+                    # ADD THIS: Extraction instructions
                     st.markdown("""
-                    **💡 Quick tip:** 
+                    #### 💡 How to extract your project:
                     - **Windows:** Right-click the ZIP → "Extract All"
                     - **Mac:** Double-click the ZIP file
                     - **Linux:** Right-click → "Extract Here"
 
-                    Or download files individually using the buttons above! 👆
+                    *Or download files individually using the ⬇️ buttons above!*
                     """)
-
-                    # Show where files are saved
-                    st.info(f"📁 Files are also saved locally at: `{PROJECT_ROOT}`")
 
                 else:
                     st.warning("⚠️ No files were generated.")
